@@ -1,11 +1,9 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Loader } from '@react-three/drei';
 import Scene from './Scene';
-import { Toolbar, InfoPanel, FlowOverlay, HowItWorks, SaveDialog, SavedViews, Brand } from './ui';
+import { Toolbar, InfoPanel, FlowOverlay, HowItWorks, Brand } from './ui';
 import { HOME_CAMERA } from './data';
-import * as api from './api';
-import { toast, Toaster } from 'sonner';
 
 const easeInOut = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
 
@@ -46,23 +44,7 @@ export default function CropConnect() {
   const [camSignal, setCamSignal] = useState(0);
   const camApiRef = useRef(null);
 
-  const [saveOpen, setSaveOpen] = useState(false);
-  const [viewsOpen, setViewsOpen] = useState(false);
-  const [views, setViews] = useState([]);
-  const [notes, setNotes] = useState([]);
-
   const explodeFactor = useTween(exploded ? 1 : 0);
-
-  const refreshViews = useCallback(() => {
-    api.listViews().then(setViews).catch(() => {});
-  }, []);
-  useEffect(() => { refreshViews(); }, [refreshViews]);
-
-  // notes for the selected component
-  useEffect(() => {
-    if (!selectedId) { setNotes([]); return; }
-    api.listNotes(selectedId).then(setNotes).catch(() => setNotes([]));
-  }, [selectedId]);
 
   const onSelect = (id) => {
     setSelectedId((prev) => (prev === id ? prev : id));
@@ -71,47 +53,6 @@ export default function CropConnect() {
   const resetView = () => {
     setCamTarget(HOME_CAMERA);
     setCamSignal((s) => s + 1);
-  };
-
-  const flyTo = (cam) => {
-    if (!cam || !cam.position) { resetView(); return; }
-    setCamTarget(cam);
-    setCamSignal((s) => s + 1);
-  };
-
-  const addNote = (text) => {
-    api.createNote({ componentId: selectedId, text })
-      .then((n) => { setNotes((p) => [n, ...p]); toast.success('Note added'); })
-      .catch(() => toast.error('Could not save note'));
-  };
-  const removeNote = (id) => {
-    api.deleteNote(id).then(() => setNotes((p) => p.filter((n) => n.id !== id))).catch(() => {});
-  };
-
-  const saveView = (name, viewNotes) => {
-    const cam = camApiRef.current ? camApiRef.current() : null;
-    api.createView({
-      name, camera: cam, explodeFactor: exploded ? 1 : 0,
-      selectedId, showConnections, showFlow, notes: viewNotes,
-    }).then((v) => {
-      setViews((p) => [v, ...p]);
-      setSaveOpen(false);
-      toast.success('View saved');
-    }).catch(() => toast.error('Could not save view'));
-  };
-
-  const applyView = (v) => {
-    setExploded(v.explodeFactor > 0.5);
-    setSelectedId(v.selectedId || null);
-    setShowConnections(!!v.showConnections);
-    setShowFlow(!!v.showFlow);
-    setViewsOpen(false);
-    if (v.camera) flyTo(v.camera);
-    toast.success(`Loaded "${v.name}"`);
-  };
-
-  const deleteViewItem = (id) => {
-    api.deleteView(id).then(() => setViews((p) => p.filter((v) => v.id !== id))).catch(() => {});
   };
 
   return (
@@ -148,8 +89,6 @@ export default function CropConnect() {
         onReset={resetView}
         showHow={showHow}
         onToggleHow={() => setShowHow((s) => !s)}
-        onOpenSave={() => setSaveOpen(true)}
-        onOpenViews={() => { refreshViews(); setViewsOpen(true); }}
       />
 
       <FlowOverlay open={showFlow} />
@@ -160,15 +99,7 @@ export default function CropConnect() {
         showConnections={showConnections}
         onToggleConnections={() => setShowConnections((s) => !s)}
         onClose={() => setSelectedId(null)}
-        notes={notes}
-        onAddNote={addNote}
-        onDeleteNote={removeNote}
       />
-
-      <SaveDialog open={saveOpen} onClose={() => setSaveOpen(false)} onSave={saveView} />
-      <SavedViews open={viewsOpen} views={views} onClose={() => setViewsOpen(false)} onApply={applyView} onDelete={deleteViewItem} />
-
-      <Toaster position="top-center" richColors />
     </div>
   );
 }
