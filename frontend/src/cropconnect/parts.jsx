@@ -365,14 +365,16 @@ export function Flow() {
 
 /* ---------- WIRE (curved cable tube) ---------- */
 export function Wire({ start, end, color = '#222', radius = 0.018, sag = 0.35 }) {
+  const startX = start[0], startY = start[1], startZ = start[2];
+  const endX = end[0], endY = end[1], endZ = end[2];
   const geo = useMemo(() => {
-    const s = new THREE.Vector3(...start);
-    const e = new THREE.Vector3(...end);
+    const s = new THREE.Vector3(startX, startY, startZ);
+    const e = new THREE.Vector3(endX, endY, endZ);
     const mid = s.clone().add(e).multiplyScalar(0.5);
     mid.y -= s.distanceTo(e) * sag;
     const curve = new THREE.CatmullRomCurve3([s, mid, e]);
     return new THREE.TubeGeometry(curve, 26, radius, 8, false);
-  }, [start[0], start[1], start[2], end[0], end[1], end[2], radius, sag]);
+  }, [startX, startY, startZ, endX, endY, endZ, radius, sag]);
   return (
     <mesh geometry={geo}>
       <meshStandardMaterial color={color} roughness={0.6} metalness={0.1} />

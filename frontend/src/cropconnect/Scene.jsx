@@ -79,12 +79,15 @@ function Selectable({ id, position, rotation, selected, onSelect, showLabel }) {
 /* ---------- connection lines ---------- */
 function ConnLine({ a, b, color }) {
   const ref = useRef();
+  const ax = a[0], ay = a[1], az = a[2];
+  const bx = b[0], by = b[1], bz = b[2];
   const pts = useMemo(() => {
-    const s = V(a), e = V(b);
+    const s = new THREE.Vector3(ax, ay, az);
+    const e = new THREE.Vector3(bx, by, bz);
     const m = s.clone().add(e).multiplyScalar(0.5);
     m.y += 0.6;
     return new THREE.QuadraticBezierCurve3(s, m, e).getPoints(32);
-  }, [a[0], a[1], a[2], b[0], b[1], b[2]]);
+  }, [ax, ay, az, bx, by, bz]);
   useFrame(() => { if (ref.current?.material) ref.current.material.dashOffset -= 0.03; });
   return <Line ref={ref} points={pts} color={color} lineWidth={3} dashed dashSize={0.16} gapSize={0.1} transparent opacity={0.95} />;
 }
