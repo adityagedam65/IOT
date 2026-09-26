@@ -4,7 +4,7 @@ import { Layers, Share2, Workflow, RotateCcw, Tag, HelpCircle, X, Cpu, Boxes } f
 import { SYSTEM_FLOW, HOW_IT_WORKS, COMPONENTS } from './data';
 
 export function Toolbar({ exploded, onToggleExplode, showConnections, onToggleConnections, showFlow, onToggleFlow, showLabels, onToggleLabels, onReset, showHow, onToggleHow }) {
-  const Btn = ({ active, onClick, icon: Icon, label, primary, testid }) => <button data-testid={testid} onClick={onClick} className={`cc-btn ${active ? 'cc-btn-active' : ''} ${primary ? 'cc-btn-primary' : ''}`}><Icon size={15} strokeWidth={2.2} /><span>{label}</span></button>;
+  const Btn = ({ active, onClick, icon: Icon, label, primary, testid }) => <button data-testid={testid} onClick={onClick} title={label} aria-label={label} className={`cc-btn ${active ? 'cc-btn-active' : ''} ${primary ? 'cc-btn-primary' : ''}`}><Icon size={15} strokeWidth={2.2} /><span>{label}</span></button>;
   return <div className="cc-toolbar" data-testid="toolbar">
     <Btn testid="btn-explode" primary active={exploded} onClick={onToggleExplode} icon={Layers} label={exploded ? 'COLLAPSE SYSTEM' : 'EXPLODE SYSTEM'} />
     <Btn testid="btn-connections" active={showConnections} onClick={onToggleConnections} icon={Share2} label="SHOW CONNECTIONS" />

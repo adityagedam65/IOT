@@ -200,6 +200,7 @@ export default function Scene({ explodeFactor, selectedId, onSelect, showConnect
         enablePan
         enableDamping
         dampingFactor={0.08}
+        touches={{ ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN }}
         minDistance={2.5}
         maxDistance={16}
         maxPolarAngle={Math.PI / 2.05}

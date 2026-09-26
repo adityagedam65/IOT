@@ -45,6 +45,8 @@ export default function CropConnect() {
   const camApiRef = useRef(null);
 
   const explodeFactor = useTween(exploded ? 1 : 0);
+  const isTouchDevice = typeof window !== 'undefined'
+    && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 
   const onSelect = (id) => {
     setSelectedId((prev) => (prev === id ? prev : id));
@@ -58,7 +60,7 @@ export default function CropConnect() {
   return (
     <div className="cc-root" data-testid="cropconnect-app">
       <div className="cc-canvas-wrap" onPointerMissed={() => setSelectedId(null)}>
-        <Canvas shadows camera={{ position: HOME_CAMERA.position, fov: 42 }} dpr={[1, 2]} gl={{ antialias: true }}>
+        <Canvas shadows camera={{ position: HOME_CAMERA.position, fov: 42 }} dpr={isTouchDevice ? [1, 1.5] : [1, 2]} gl={{ antialias: true }}>
           <Scene
             explodeFactor={explodeFactor}
             selectedId={selectedId}
